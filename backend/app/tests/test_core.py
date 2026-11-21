@@ -43,6 +43,25 @@ def test_identity_jump_frames_dropped():
     assert np.isnan(xy[20:23]).all() and vis[20:23].max() == 0 and np.isfinite(xy[19, [11, 12, 23, 24]]).all()
 
 
+def test_overlap_identity_swap_is_repaired():
+    """Bowler (moving right) runs past a standing batter; the tracker swaps IDs during the overlap.
+    The repaired path must keep following the moving person, not the standing one."""
+    from app.modules import person_tracker as pt
+    box = lambda x: (x - 20.0, 100.0, x + 20.0, 300.0)
+    bowler_x = lambda f: 100 + 5 * f
+    t1, t2 = {}, {}
+    for f in range(60):
+        if f < 30:
+            t1[f] = box(bowler_x(f))          # ID 1 = bowler ...
+            t2[f] = box(250)                  # ID 2 = batter standing at x=250
+        else:                                 # ... IDs swapped after they overlapped (around f=30)
+            t1[f] = box(250)
+            t2[f] = box(bowler_x(f))
+    path, fixes = pt.resolve_overlap_swaps({1: t1, 2: t2}, dict(t1))
+    assert fixes == 1
+    assert pt._c(path[50])[0] == bowler_x(50)            # still on the moving bowler
+
+
 def test_api_rejects_no_bowler(tmp_path):
     from app.main import app
     p = tmp_path / "blank.mp4"

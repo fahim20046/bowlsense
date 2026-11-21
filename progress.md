@@ -232,6 +232,14 @@
 - Git repo initialised (branch main, local identity for this repo only), first commit 790d003. .gitignore excludes
   videos/datasets (archive/, samples/), storage/, venv, node_modules, auto-downloaded weights, training caches.
 
+## Tracking jumped to batsman at release (2026-11-21)
+- Session 0eec8486 (wide side-on, 1661 frames): ByteTrack swapped IDs when the bowler ran past the batsman (~540–600);
+  skeleton then stayed on the standing batsman. Fix `person_tracker.resolve_overlap_swaps`: after each box overlap
+  (IoU > 0.25) keep the candidate that continues the bowler's pre-overlap constant-velocity motion; inside the
+  overlap pick per frame the box nearer the prediction. Test added (23/23).
+- After re-track: skeleton on the bowler 568→715; release detected 715 vs visual ≈ 709–711 (~5 frames late, 50 fps);
+  verdict Legal. Other copies of this clip (0ea3f49a, a9ff15d6) still hold old tracking — use History "Re-track".
+
 ## Docs
 - README rewritten (2026-11-20): full install incl. torch CPU + ultralytics `--no-deps`, run, tests, recording tips.
   requirements.txt no longer lists torch (installed via README step).

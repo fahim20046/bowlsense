@@ -158,11 +158,78 @@ def select_bowler(tracks: dict, n: int, W: int, H: int, hint=None) -> tuple[dict
         trimmed = trim_static_prefix(path)
         if min(trimmed) <= hf:            # never trim past the frame the user clicked
             path = stitch(tracks, trimmed)
-        return path, "hint"
+        return resolve_overlap_swaps(tracks, path)[0], "hint"
     long_tracks = [t for t in tracks.values() if _long_enough(t, n)]
     max_h = max(np.median([_h(b) for b in t.values()]) for t in long_tracks) if long_tracks else None
     seed = max(tracks, key=lambda k: bowler_score(trim_static_prefix(tracks[k]), n, max_h))
-    return stitch(tracks, trim_static_prefix(stitch(tracks, seed))), "auto"
+    return resolve_overlap_swaps(tracks, stitch(tracks, trim_static_prefix(stitch(tracks, seed))))[0], "auto"
+
+
+def _iou(a: Box, b: Box) -> float:
+    ix = max(0.0, min(a[2], b[2]) - max(a[0], b[0]))
+    iy = max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+    inter = ix * iy
+    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return inter / union if union > 0 else 0.0
+
+
+def resolve_overlap_swaps(tracks: dict, path: dict[int, Box], iou_thr: float = 0.25, look: int = 12) -> tuple[dict, int]:
+    """ByteTrack can swap identities when the bowler runs past the umpire / non-striker / batter: the 'bowler'
+    track then continues on the (standing) other person. After every overlap, keep the candidate that best
+    CONTINUES the bowler's motion (constant-velocity prediction from before the overlap), and switch tracks
+    if needed. Returns (path, number of swaps repaired)."""
+    path = dict(path)
+    fixes = 0
+    fs = sorted(path)
+    i = 0
+    while i < len(fs):
+        f = fs[i]
+        others = [t for t in tracks.values() if f in t and t[f] != path[f] and _iou(t[f], path[f]) > iou_thr]
+        if not others:
+            i += 1
+            continue
+        # overlap interval [s, e]
+        s = f
+        e = f
+        while e + 1 in path and any(e + 1 in t and t[e + 1] != path[e + 1] and _iou(t[e + 1], path[e + 1]) > iou_thr
+                                    for t in tracks.values()):
+            e += 1
+        before = [g for g in range(s - 1, s - 1 - 3 * look, -1) if g in path][:look]
+        if len(before) >= 4:
+            g0, g1 = before[-1], before[0]
+            v = (_c(path[g1]) - _c(path[g0])) / max(g1 - g0, 1)          # px / frame before the overlap
+            h = np.median([_h(path[g]) for g in before])
+            # candidates: the current continuation and every other track that exists right after the overlap
+            cands = [path] + [t for t in tracks.values() if any(e + d in t for d in range(1, 4)) and t is not path]
+            best, best_err = None, None
+            for t in cands:
+                after = [g for g in range(e + 1, e + 1 + look) if g in t]
+                if len(after) < 3:
+                    continue
+                err = np.mean([np.linalg.norm(_c(t[g]) - (_c(path[g1]) + v * (g - g1))) for g in after]) / h
+                if best_err is None or err < best_err:
+                    best, best_err = t, err
+            if best is not None and best is not path:
+                cur_after = [g for g in range(e + 1, e + 1 + look) if g in path]
+                cur_err = (np.mean([np.linalg.norm(_c(path[g]) - (_c(path[g1]) + v * (g - g1))) for g in cur_after]) / h
+                           if cur_after else np.inf)
+                if best_err < 0.6 * cur_err:                                  # clearly better continuation
+                    for g in [g for g in path if g > e]:
+                        del path[g]
+                    for g, bx in best.items():
+                        if g > e:
+                            path[g] = bx
+                    # inside the overlap the swap can happen at any frame: take, frame by frame, whichever of the
+                    # two boxes is closer to the bowler's predicted position
+                    for g in range(s, e + 1):
+                        if g in best and g in path:
+                            pred = _c(path[g1]) + v * (g - g1)
+                            if np.linalg.norm(_c(best[g]) - pred) < np.linalg.norm(_c(path[g]) - pred):
+                                path[g] = best[g]
+                    fixes += 1
+                    fs = sorted(path)
+        i = fs.index(e) + 1 if e in fs else i + 1
+    return path, fixes
 
 
 def others_at(tracks: dict, path: dict, f: int) -> list[Box]:
