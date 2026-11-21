@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/* =====================================================================
+   BowlSense identity — "cricket scorebook":
+   cream paper, ink borders, cricket-ball red, turf green, scoreboard type.
+   The Tailwind colour scales used across the app are re-mapped here, so every
+   page switches to the light scorebook look without touching each component:
+   - slate  -> paper/ink scale INVERTED (900 = card paper, 300 = ink text)
+   - emerald/amber/rose/sky/fuchsia/violet -> dark tones for text (≤400),
+     solid tones for buttons (500–700), pale tints for chips (≥800)
+   ===================================================================== */
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "IBM Plex Sans", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-ball: #b3261e;
+  --color-ball-dark: #8c1d17;
+  --color-ink: #1c2333;
+  --color-paper: #f4efe4;
+  --color-turf: #2f6b3a;
+
+  --color-slate-50: #12151d;  --color-slate-100: #1c2333; --color-slate-200: #2a3142;
+  --color-slate-300: #383f50; --color-slate-400: #5a5f6b; --color-slate-500: #7a7c82;
+  --color-slate-600: #a29f97; --color-slate-700: #cfc8b8; --color-slate-800: #e7e0d0;
+  --color-slate-900: #fbf8f1; --color-slate-950: #fffdf8;
+
+  --color-emerald-50: #123d1c; --color-emerald-100: #164a23; --color-emerald-200: #1d5a2c;
+  --color-emerald-300: #23652f; --color-emerald-400: #2a7136; --color-emerald-500: #2f7d3c;
+  --color-emerald-600: #2a6e35; --color-emerald-700: #23602e; --color-emerald-800: #dcebd8;
+  --color-emerald-900: #e8f2e3; --color-emerald-950: #f2f8ef;
+
+  --color-amber-50: #5a3a05; --color-amber-100: #6b4506; --color-amber-200: #7c5008;
+  --color-amber-300: #8d5c0a; --color-amber-400: #a06a0c; --color-amber-500: #c98a12;
+  --color-amber-600: #b07810; --color-amber-700: #96660d; --color-amber-800: #f6e7c4;
+  --color-amber-900: #faf0d8; --color-amber-950: #fdf7ea;
+
+  --color-rose-50: #5c120e; --color-rose-100: #6e1611; --color-rose-200: #801a14;
+  --color-rose-300: #921f18; --color-rose-400: #a3231b; --color-rose-500: #b3261e;
+  --color-rose-600: #9d221b; --color-rose-700: #861d17; --color-rose-800: #f4d9d5;
+  --color-rose-900: #f9e7e4; --color-rose-950: #fcf2f0;
+
+  --color-sky-50: #0c2b47; --color-sky-100: #0f3455; --color-sky-200: #133e64;
+  --color-sky-300: #174872; --color-sky-400: #1d5683; --color-sky-500: #24679a;
+  --color-sky-600: #1f5a87; --color-sky-700: #1a4d74; --color-sky-800: #d7e5f1;
+  --color-sky-900: #e6eff7; --color-sky-950: #f2f7fb;
+
+  --color-fuchsia-100: #4d1647; --color-fuchsia-200: #5e1b57; --color-fuchsia-300: #6f2067;
+  --color-fuchsia-400: #802677; --color-fuchsia-500: #923087; --color-fuchsia-600: #7e2875;
+  --color-fuchsia-700: #6b2264; --color-fuchsia-800: #f0dcec; --color-fuchsia-900: #f7eaf4;
+
+  --color-violet-400: #4b3f8f; --color-violet-500: #5a4caa;
+}
+
+body {
+  margin: 0;
+  color: var(--color-ink);
+  background-color: var(--color-paper);
+  /* faint mowing stripes, like a cricket outfield */
+  background-image: repeating-linear-gradient(90deg, rgba(47, 107, 58, 0.035) 0 120px, rgba(255, 255, 255, 0) 120px 240px);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* scorecard: paper card, ink border, hard offset shadow */
+@layer components {
+  .card {
+    background: #fffdf8;
+    border: 1.5px solid var(--color-ink);
+    box-shadow: 4px 4px 0 var(--color-ink);
+  }
+  .font-display { font-family: var(--font-display); }
+}
+
+/* big numbers read like a scoreboard */
+.text-3xl, .text-4xl, .text-5xl { font-family: var(--font-display); letter-spacing: 0.01em; }
+
+table th { font-weight: 600; letter-spacing: .04em; text-transform: uppercase; font-size: 11px; }
+tbody tr:hover { background: rgba(28, 35, 51, 0.035); }
+
+select, input { color-scheme: light; }
+select, input[type="number"], input[type="text"], input:not([type]) {
+  border: 1.5px solid var(--color-slate-700);
+  border-radius: 4px;
+}
+button { transition: background-color .15s, color .15s, opacity .15s, transform .05s; }
+button:active { transform: translateY(1px); }
+input[type="range"] { accent-color: var(--color-ball); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #cfc8b8; border-radius: 8px; }

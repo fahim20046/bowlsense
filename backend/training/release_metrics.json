@@ -1,0 +1,27 @@
+{
+  "test_deliveries": 78,
+  "rule_only": {
+    "n": 78,
+    "found": 56,
+    "median_abs_err_frames": 7.5,
+    "within_2": 0.2948717948717949,
+    "within_3": 0.2948717948717949,
+    "within_6": 0.3333333333333333
+  },
+  "model_only": {
+    "n": 78,
+    "found": 78,
+    "median_abs_err_frames": 1.0,
+    "within_2": 0.5897435897435898,
+    "within_3": 0.6025641025641025,
+    "within_6": 0.6794871794871795
+  },
+  "hybrid_app": {
+    "n": 78,
+    "found": 64,
+    "median_abs_err_frames": 1.0,
+    "within_2": 0.5384615384615384,
+    "within_3": 0.5384615384615384,
+    "within_6": 0.6282051282051282
+  }
+}

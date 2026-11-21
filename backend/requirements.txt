@@ -1,0 +1,14 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+python-multipart>=0.0.9
+pydantic>=2.7
+sqlalchemy>=2.0
+opencv-python-headless>=4.10
+mediapipe>=0.10.30   # Tasks API (PoseLandmarker heavy); legacy mp.solutions not used
+numpy>=1.26
+scipy>=1.13
+imageio-ffmpeg>=0.5   # bundled ffmpeg for H.264 browser-safe normalization
+pytest>=8
+# NOT installed by this file (see README step 1): torch/torchvision (CPU index URL) and
+# ultralytics (--no-deps, else it replaces opencv-python-headless) + its deps.
+httpx>=0.27
