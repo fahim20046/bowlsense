@@ -224,6 +224,14 @@
 - Caveat: the fix was found while inspecting clip 1 of this same set; it is a rule correction (ICC definition), not a
   tuned threshold, but a fully independent test set would be stronger. Paper's own system: 91.96% accuracy.
 
+## Demo + validation page + git (2026-11-20)
+- Demo sessions in History (expert-labelled dataset clips): "DEMO illegal action" (#19, Illegal 32.7°),
+  "DEMO illegal action 2" (#31, Illegal 34.1°), "DEMO legal action" (#1, Legal 0.0°), "DEMO legal action 2" (#11, Legal 3.8°).
+- `GET /api/validation` + `frontend/src/pages/Validation.jsx` (header "Validation" button): accuracy tiles, confusion
+  matrix, per-clip table, release-detector comparison, data sources + caveats.
+- Git repo initialised (branch main, local identity for this repo only), first commit 790d003. .gitignore excludes
+  videos/datasets (archive/, samples/), storage/, venv, node_modules, auto-downloaded weights, training caches.
+
 ## Docs
 - README rewritten (2026-11-20): full install incl. torch CPU + ultralytics `--no-deps`, run, tests, recording tips.
   requirements.txt no longer lists torch (installed via README step).
