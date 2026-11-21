@@ -257,3 +257,6 @@
 ## Log
 - 2026-11-20: Turn 1 design. M1 code + tests; Node LTS installed via winget.
 - 2026-11-20: M1 validated on archive clips; bowler tracking + hint + BR fix.
+
+## 2026-11-21 — Published to GitHub
+- Public repo: https://github.com/fahim20046/bowlsense (commit emails set to GitHub noreply).
